@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Comentarios</title>
+</head>
+<body>
+
+<h2>Deja tu comentario</h2>
+
+<input type="text" id="name" placeholder="Tu nombre"><br><br>
+<textarea id="comment" placeholder="Tu comentario"></textarea><br><br>
+
+<button onclick="guardarComentario()">Enviar</button>
+
+<h3>Comentarios:</h3>
+<div id="lista"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBYe3AympJ0AdP3XOMb0YPJ5-1xx6077FE",
+  authDomain: "vlsdigital-sebastian-lopez.firebaseapp.com",
+  projectId: "vlsdigital-sebastian-lopez",
+  storageBucket: "vlsdigital-sebastian-lopez.firebasestorage.app",
+  messagingSenderId: "213168392649",
+  appId: "1:213168392649:web:4c09ce0008bd829c910018",
+  measurementId: "G-SVX91WK96W"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.guardarComentario = async function () {
+  const name = document.getElementById("name").value;
+  const comment = document.getElementById("comment").value;
+
+  if (!name || !comment) {
+    alert("Completa todos los campos");
+    return;
+  }
+
+  await addDoc(collection(db, "comments"), {
+    name: name,
+    comment: comment,
+    fecha: new Date()
+  });
+
+  document.getElementById("name").value = "";
+  document.getElementById("comment").value = "";
+
+  cargarComentarios();
+};
+
+async function cargarComentarios() {
+  const querySnapshot = await getDocs(collection(db, "comments"));
+  let html = "";
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    html += `<p><b>${data.name}:</b> ${data.comment}</p>`;
+  });
+
+  document.getElementById("lista").innerHTML = html;
+}
+
+cargarComentarios();
+</script>
+
+</body>
+</html>
